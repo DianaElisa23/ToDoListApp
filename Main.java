@@ -1,12 +1,17 @@
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.io.*;
 
 public class Main {
     static ArrayList<String> tareas = new ArrayList<>();
+    static final String ARCHIVO_TAREAS = "tareas.txt";
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         int opcion;
+
+        // Cargar tareas al iniciar
+        cargarTareas();
 
         do {
             System.out.println("\n To Do List");
@@ -25,6 +30,7 @@ public class Main {
                     String tarea = sc.nextLine();
                     tareas.add(tarea);
                     System.out.println("Tarea agregada");
+                    guardarTareas();
                     break;
 
                 case 2:
@@ -56,6 +62,7 @@ public class Main {
                         if (indice > 0 && indice <= tareas.size()) {
                             tareas.remove(indice - 1);
                             System.out.println("Tarea eliminada");
+                            guardarTareas();
                         } else {
                             System.out.println("Número de tarea inválido");
                         }
@@ -73,5 +80,23 @@ public class Main {
         } while (opcion != 5);
 
         sc.close();
+    }
+
+    static void guardarTareas() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ARCHIVO_TAREAS))) {
+            oos.writeObject(tareas);
+        } catch (IOException e) {
+            System.out.println("Error al guardar las tareas: " + e.getMessage());
+        }
+    }
+
+    static void cargarTareas() {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ARCHIVO_TAREAS))) {
+            tareas = (ArrayList<String>) ois.readObject();
+        } catch (FileNotFoundException e) {
+            System.out.println("Archivo de tareas no encontrado. Se creará uno nuevo.");
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Error al cargar las tareas: " + e.getMessage());
+        }
     }
 }
